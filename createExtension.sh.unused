@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+env
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
+   \echo POSTGRES_DB="$POSTGRES_DB"
+   \echo POSTGRES_SCHEMA="$POSTGRES_SCHEMA"
+   CREATE SCHEMA IF NOT EXISTS "$POSTGRES_SCHEMA";
+
+   SELECT * FROM pg_extension;
+   
+   CREATE EXTENSION IF NOT EXISTS "uuid-ossp" with SCHEMA "$POSTGRES_SCHEMA";
+   
+   SELECT * FROM pg_extension;
+
+   SELECT e.extname
+     , n.nspname      AS home_schema_of_extension
+     , extrelocatable AS extension_can_be_relocated
+FROM   pg_catalog.pg_extension e
+JOIN   pg_catalog.pg_namespace n ON n.oid = e.extnamespace;
+
+select crm.uuid_generate_v4();
+COMMIT;
+EOSQL

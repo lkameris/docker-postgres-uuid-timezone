@@ -1,9 +1,6 @@
-FROM postgres:10.3
-
-MAINTAINER Terry Zhang
+FROM postgres
 
 RUN apt-get update && apt-get install -y postgresql-contrib
 
-ADD createExtension.sh /docker-entrypoint-initdb.d/
-RUN chmod 755 /docker-entrypoint-initdb.d/createExtension.sh
+ADD uuid.sql /docker-entrypoint-initdb.d/
 ADD postgresql.conf /etc/postgresql/postgresql.conf
